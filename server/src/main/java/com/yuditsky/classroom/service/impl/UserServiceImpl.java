@@ -3,7 +3,9 @@ package com.yuditsky.classroom.service.impl;
 import com.yuditsky.classroom.converter.UserDtoToEntityConverter;
 import com.yuditsky.classroom.converter.UserEntityToDtoConverter;
 import com.yuditsky.classroom.entity.UserEntity;
+import com.yuditsky.classroom.exception.AlreadyAuthorizedException;
 import com.yuditsky.classroom.exception.AlreadyExistedException;
+import com.yuditsky.classroom.exception.EntityNotFoundException;
 import com.yuditsky.classroom.model.User;
 import com.yuditsky.classroom.repository.UserRepository;
 import com.yuditsky.classroom.service.UserService;
@@ -35,7 +37,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public User create(User user) {
         userRepository.findByUsername(user.getUsername()).ifPresent((userEntity -> {
-            throw new AlreadyExistedException("User with username {0} is already existing", user.getUsername());
+            throw new AlreadyExistedException("User with username {0} is already existing", userEntity.getUsername());
         }));
         userValidator.validate(user);
         UserEntity userEntity = userDtoToEntityConverter.convert(user);
@@ -48,7 +50,49 @@ public class UserServiceImpl implements UserService {
                 .orElseGet(() ->
                         create(User.builder()
                                 .username(username)
+                                .isHandUp(false)
+                                .authorized(false)
                                 .build()));
 
+    }
+
+    @Override
+    public User findByUsername(String username) {
+        return userRepository.findByUsername(username).map(userEntityToDtoConverter::convert).orElseThrow(() -> {
+            throw new EntityNotFoundException("User with username {0} not found", username);
+        });
+    }
+
+    @Override
+    public void update(User user) {
+        userValidator.validate(user);
+        userRepository.save(userDtoToEntityConverter.convert(user));
+    }
+
+    @Override
+    public User changeHandState(User user) {
+        user = findByUsername(user.getUsername());
+        user.setHandUp(!user.isHandUp());
+        update(user);
+        return user;
+    }
+
+    @Override
+    public User logIn(String username) {
+        User user = findOrCreateByUsername(username);
+        if (!user.isAuthorized()) {
+            user.setAuthorized(true);
+            update(user);
+        } else {
+            throw new AlreadyAuthorizedException("User with username {0} is already authorized", username);
+        }
+
+        return user;
+    }
+
+    @Override
+    public void logOut(User user) {
+        user.setAuthorized(false);
+        update(user);
     }
 }

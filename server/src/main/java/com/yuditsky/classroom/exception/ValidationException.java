@@ -1,6 +1,6 @@
 package com.yuditsky.classroom.exception;
 
-public class ValidationException extends ServiceException{
+public class ValidationException extends ServiceException {
     public ValidationException() {
     }
 

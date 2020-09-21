@@ -1,6 +1,6 @@
 package com.yuditsky.classroom.exception;
 
-public class InvalidEntityException extends ValidationException{
+public class InvalidEntityException extends ValidationException {
     public InvalidEntityException() {
     }
 

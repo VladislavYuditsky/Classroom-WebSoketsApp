@@ -1,17 +1,15 @@
 package com.yuditsky.classroom.model;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.time.LocalDateTime;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-public class User {
-    private Long id;
-    private String username;
-    private boolean isHandUp;
-    private boolean authorized;
+public class ErrorMessage {
+    private String message;
+    private LocalDateTime dateTime;
 }

@@ -2,7 +2,7 @@ package com.yuditsky.classroom.exception;
 
 import java.text.MessageFormat;
 
-public class ServiceException extends RuntimeException{
+public class ServiceException extends RuntimeException {
     public ServiceException() {
     }
 

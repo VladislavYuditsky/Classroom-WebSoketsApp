@@ -1,6 +1,6 @@
 package com.yuditsky.classroom.exception;
 
-public class AlreadyExistedException extends ServiceException{
+public class AlreadyExistedException extends ServiceException {
     public AlreadyExistedException() {
     }
 

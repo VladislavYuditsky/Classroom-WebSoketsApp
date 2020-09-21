@@ -3,8 +3,10 @@ package com.yuditsky.classroom.validator.impl;
 import com.yuditsky.classroom.exception.InvalidEntityException;
 import com.yuditsky.classroom.model.User;
 import com.yuditsky.classroom.validator.EntityValidator;
+import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
+@Component
 public class UserValidator implements EntityValidator<User> {
 
     @Override
