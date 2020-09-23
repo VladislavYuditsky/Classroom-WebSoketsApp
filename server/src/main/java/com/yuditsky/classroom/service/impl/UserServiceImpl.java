@@ -3,6 +3,7 @@ package com.yuditsky.classroom.service.impl;
 import com.yuditsky.classroom.converter.UserDtoToEntityConverter;
 import com.yuditsky.classroom.converter.UserEntityToDtoConverter;
 import com.yuditsky.classroom.entity.UserEntity;
+import com.yuditsky.classroom.exception.AccessDeniedException;
 import com.yuditsky.classroom.exception.AlreadyAuthorizedException;
 import com.yuditsky.classroom.exception.AlreadyExistedException;
 import com.yuditsky.classroom.exception.EntityNotFoundException;
@@ -12,6 +13,10 @@ import com.yuditsky.classroom.service.UserService;
 import com.yuditsky.classroom.validator.impl.UserValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -72,8 +77,12 @@ public class UserServiceImpl implements UserService {
     @Override
     public User changeHandState(User user) {
         user = findByUsername(user.getUsername());
-        user.setHandUp(!user.isHandUp());
-        update(user);
+        if (user.isAuthorized()) {
+            user.setHandUp(!user.isHandUp());
+            update(user);
+        } else {
+            throw new AccessDeniedException("User with username {0} is not authorized", user.getUsername());
+        }
         return user;
     }
 
@@ -92,7 +101,22 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void logOut(User user) {
-        user.setAuthorized(false);
-        update(user);
+        user = findByUsername(user.getUsername());
+        if (user.isAuthorized()) {
+            user.setAuthorized(false);
+            user.setHandUp(false);
+            update(user);
+        } else {
+            throw new AccessDeniedException("User with username {0} is not authorized", user.getUsername());
+        }
+    }
+
+    @Override
+    public List<User> getAuthorizedUsers() {
+        return userRepository.findUserEntitiesByAuthorized(true)
+                .stream()
+                .map(userEntityToDtoConverter::convert)
+                .sorted(Comparator.comparing(User::getId))
+                .collect(Collectors.toList());
     }
 }

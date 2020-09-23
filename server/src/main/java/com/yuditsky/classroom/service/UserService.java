@@ -2,6 +2,8 @@ package com.yuditsky.classroom.service;
 
 import com.yuditsky.classroom.model.User;
 
+import java.util.List;
+
 public interface UserService {
     User create(User user);
 
@@ -16,4 +18,6 @@ public interface UserService {
     User logIn(String username);
 
     void logOut(User user);
+
+    List<User> getAuthorizedUsers();
 }
